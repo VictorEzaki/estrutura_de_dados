@@ -1,0 +1,1 @@
+Repositório destinado às aulas de estrutura de dados em C
