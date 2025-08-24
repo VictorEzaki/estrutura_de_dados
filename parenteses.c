@@ -25,36 +25,37 @@ uma delas contendo as palavras correct ou incorrect de acordo com as regras acim
 */
 
 #include <stdio.h>
+#include <string.h>
 
 void main()
 {
     char expressao[1001];
-    int qtdeParentesesAberto = 0, qtdeParentesesFechado = 0, i = 0;
 
-    while (expressao)
-    {
-        fgets(expressao, sizeof(expressao), stdin);
-        while (expressao[i] != '\0')
-        {
-            if (expressao[i] == '(')
-            {
-                qtdeParentesesAberto++;
-            }
-            else if (expressao[i] == ')')
-            {
-                qtdeParentesesFechado++;
-            }
+    while (fgets(expressao, sizeof(expressao), stdin)) {
+        int balance = 0;
+        int correto = 1;
+        int tam = strlen(expressao);
 
-            i++;
+        for (int i = 0; i < tam; i++) {
+            if (expressao[i] == '(') {
+                balance++;
+            } else if (expressao[i] == ')') {
+                balance--;
+                if (balance < 0) {
+                    correto = 0;
+                    break;
+                }
+            }
         }
 
-        if (qtdeParentesesAberto == qtdeParentesesFechado)
-        {
-            printf("Correct\n");
+        if (balance != 0) {
+            correto = 0;
         }
-        else
-        {
-            printf("Incorrect\n");
+
+        if (correto) {
+            printf("correct\n");
+        } else {
+            printf("incorrect\n");
         }
     }
 }

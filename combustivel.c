@@ -21,29 +21,18 @@ Exemplo de Entrada		Exemplo de Saída
 */
 
 #include <stdio.h>
-#include <stdlib.h>
 
-void main()
+int main()
 {
-    system("chcp 65001");
-
     int option = 0, ret, qtdeAbastecimentos[3] = {0, 0, 0};
 
     do
     {
-        printf("+------------------------------+\n");
-        printf("|             Posto            |\n");
-        printf("+------------------------------+\n");
-        printf("| [1] Álcool                   |\n");
-        printf("| [2] Gasolina                 |\n");
-        printf("| [3] Diesel                   |\n");
-        printf("| [4] Fim                      |\n");
-        printf("+------------------------------+\n");
         ret = scanf("%d", &option);
 
         if (ret != 1)
         {
-            printf("Insira um valor válido!\n");
+            printf("Insira um valor valido!\n");
             while(getchar() != '\n');
         }
         else
@@ -64,15 +53,16 @@ void main()
 
             case 4:
                 printf("MUITO OBRIGADO\n");
-                printf("Álcool: %d\n", qtdeAbastecimentos[0]);
+                printf("Alcool: %d\n", qtdeAbastecimentos[0]);
                 printf("Gasolina: %d\n", qtdeAbastecimentos[1]);
                 printf("Diesel: %d\n", qtdeAbastecimentos[2]);
                 break;
 
             default:
-                printf("Insira uma opção válida!\n");
                 break;
             }
         }
     } while (option != 4);
+
+    return 0;
 }
