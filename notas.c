@@ -11,19 +11,19 @@ int main() {
 
     valor = round(input * 100);
 
-    printf("Notas:\n");
+    printf("NOTAS:\n");
     for (int i = 0; i < 6; i++)
     {
         qtde = valor / notas[i];
-        printf("%d Nota(s) de R$%.2lf\n", qtde, (notas[i] / 100.0));
+        printf("%d nota(s) de R$ %.2lf\n", qtde, (notas[i] / 100.0));
         valor %= notas[i];
     }
 
-    printf("Moedas:\n");
+    printf("MOEDAS:\n");
     for (int i = 0; i < 6; i++)
     {
         qtde = valor / moedas[i];
-        printf("%d Moeda(s) de R$%.2lf\n", qtde, (moedas[i] / 100.0));
+        printf("%d moeda(s) de R$ %.2lf\n", qtde, (moedas[i] / 100.0));
         valor %= moedas[i];
     }
 
