@@ -16,7 +16,7 @@
 #include <string.h>
 #include <windows.h>
 
-#define TAM_NOME 50
+#define TAM_NOME 30
 
 typedef struct
 {
