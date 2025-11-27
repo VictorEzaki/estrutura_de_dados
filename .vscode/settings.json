@@ -1,9 +1,7 @@
 {
     "files.associations": {
-        "stdio.h": "c",
-        "stdlib.h": "c",
-        "avaliacao_final.C": "cpp"
+        "*.c": "c",
+        "*.h": "c",
     },
-    "C_Cpp.errorSquiggles": "disabled",
-    "C_Cpp.default.compilerPath": "C:/mingw64/bin/gcc.exe"
+    "C_Cpp.default.compilerPath": "gcc"
 }
