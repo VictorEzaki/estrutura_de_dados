@@ -19,18 +19,68 @@ typedef struct Emprestimo
     struct Emprestimo *prox;
 } Emprestimo;
 
+int validarOptionMenu()
+{
+    char entrada[20];
+
+    printf("Escolha: ");
+    fgets(entrada, sizeof(entrada), stdin);
+
+    for (int i = 0; entrada[i] != '\0'; i++)
+    {
+        if (entrada[i] == '\n')
+            break;
+
+        if (entrada[i] < '0' || entrada[i] > '9')
+        {
+            return -1;
+        }
+    }
+
+    return atoi(entrada);
+}
+
+void validarString(char *destino, int max)
+{
+    char buffer[500];
+
+    while (1)
+    {
+        fgets(buffer, sizeof(buffer), stdin);
+
+        buffer[strcspn(buffer, "\n")] = '\0';
+
+        if (strlen(buffer) >= max)
+        {
+            printf("Entrada muito longa! Digite no máximo %d caracteres: ", max);
+            continue;
+        }
+
+        strcpy(destino, buffer);
+        break;
+    }
+}
+
 void cadastrarLivro(Livro **lista)
 {
     Livro *novo = malloc(sizeof(Livro));
+    if (!novo)
+    {
+        printf("Erro ao alocar memória!\n");
+        return;
+    }
 
     printf("Título: ");
-    scanf(" %[^\n]s", novo->titulo);
+    validarString(novo->titulo, sizeof(novo->titulo));
 
     printf("Autor: ");
-    scanf(" %[^\n]s", novo->autor);
+    validarString(novo->autor, sizeof(novo->autor));
 
     printf("Ano: ");
-    scanf("%d", &novo->ano);
+    while (scanf("%d", &novo->ano) != 1) {
+        printf("Ano inválido! Digite novamente: ");
+        while (getchar() != '\n');
+    }
 
     novo->emprestado = 0;
     novo->prox = *lista;
@@ -39,49 +89,90 @@ void cadastrarLivro(Livro **lista)
     printf("Livro cadastrado!\n");
 }
 
+Livro *merge(Livro *esq, Livro *dir)
+{
+
+    if (!esq)
+        return dir;
+    if (!dir)
+        return esq;
+
+    Livro *resultado = NULL;
+
+    if (strcmp(esq->titulo, dir->titulo) <= 0)
+    {
+
+        resultado = esq;
+
+        resultado->prox = merge(esq->prox, dir);
+    }
+    else
+    {
+
+        resultado = dir;
+
+        resultado->prox = merge(esq, dir->prox);
+    }
+
+    return resultado;
+}
+
+void dividir(Livro *lista, Livro **esq, Livro **dir)
+{
+
+    if (lista == NULL || lista->prox == NULL)
+    {
+        *esq = lista;
+        *dir = NULL;
+        return;
+    }
+
+    Livro *lento = lista;
+    Livro *rapido = lista->prox;
+
+    while (rapido != NULL)
+    {
+        rapido = rapido->prox;
+        if (rapido != NULL)
+        {
+            lento = lento->prox;
+            rapido = rapido->prox;
+        }
+    }
+
+    *esq = lista;
+    *dir = lento->prox;
+    lento->prox = NULL;
+}
+
+Livro *mergeSort(Livro *lista)
+{
+
+    if (!lista || !lista->prox)
+        return lista;
+
+    Livro *esq;
+    Livro *dir;
+
+    dividir(lista, &esq, &dir);
+
+    esq = mergeSort(esq);
+    dir = mergeSort(dir);
+
+    return merge(esq, dir);
+}
+
 void ordenarLivros(Livro **lista)
 {
-    if (*lista == NULL || (*lista)->prox == NULL)
-        return;
-
-    int trocou;
-    Livro *atual;
-    Livro *prox;
-
-    do
-    {
-        trocou = 0;
-        atual = *lista;
-
-        while (atual->prox != NULL)
-        {
-            prox = atual->prox;
-
-            if (strcmp(atual->titulo, prox->titulo) > 0)
-            {
-
-                Livro temp = *atual;
-                *atual = *prox;
-                *prox = temp;
-
-                Livro *tmp_prox = atual->prox;
-                atual->prox = prox->prox;
-                prox->prox = tmp_prox;
-
-                trocou = 1;
-            }
-            atual = atual->prox;
-        }
-    } while (trocou);
-
-    printf("Livros ordenados por título!\n");
+    *lista = mergeSort(*lista);
+    printf("Livros ordenados por título usando MergeSort!\n");
 }
 
 void emprestarLivro(Livro *lista, Emprestimo **emprestimos)
 {
     char titulo[100];
     printf("Título do livro para empréstimo: ");
-    scanf(" %[^\n]s", titulo);
+    validarString(titulo, sizeof(titulo));
 
     Livro *atual = lista;
 
@@ -101,10 +192,10 @@ void emprestarLivro(Livro *lista, Emprestimo **emprestimos)
             strcpy(novo->titulo, atual->titulo);
 
             printf("Nome do usuário: ");
-            scanf(" %[^\n]s", novo->usuario);
+            validarString(novo->usuario, sizeof(novo->usuario));
 
             printf("Data do empréstimo: ");
-            scanf(" %[^\n]s", novo->data);
+            validarString(novo->data, sizeof(novo->data));
 
             novo->prox = *emprestimos;
             *emprestimos = novo;
@@ -122,7 +213,7 @@ void devolverLivro(Livro *lista, Emprestimo **emprestimos)
 {
     char titulo[100];
     printf("Título do livro para devolução: ");
-    scanf(" %[^\n]s", titulo);
+    validarString(titulo, sizeof(titulo));
 
     Livro *atual = lista;
 
@@ -172,18 +263,49 @@ void listarLivros(Livro *lista)
         return;
     }
 
-    Livro *atual = lista;
-    printf("\n--- Lista de Livros ---\n");
+    Livro *atual;
+
+    printf("\n===== LIVROS DISPONÍVEIS =====\n");
+    atual = lista;
+    int achouDisponivel = 0;
 
     while (atual != NULL)
     {
-        printf("Título: %s\n", atual->titulo);
-        printf("Autor: %s\n", atual->autor);
-        printf("Ano: %d\n", atual->ano);
-        printf("Status: %s\n\n", atual->emprestado ? "Emprestado" : "Disponível");
+        if (atual->emprestado == 0)
+        {
+            printf("Título: %s\n", atual->titulo);
+            printf("Autor: %s\n", atual->autor);
+            printf("Ano: %d\n", atual->ano);
+            printf("Status: Disponível\n\n");
+            achouDisponivel = 1;
+        }
         atual = atual->prox;
     }
+
+    if (!achouDisponivel)
+        printf("Nenhum livro disponível.\n");
+
+    printf("\n===== LIVROS EMPRESTADOS =====\n");
+    atual = lista;
+    int achouEmprestado = 0;
+
+    while (atual != NULL)
+    {
+        if (atual->emprestado == 1)
+        {
+            printf("Título: %s\n", atual->titulo);
+            printf("Autor: %s\n", atual->autor);
+            printf("Ano: %d\n", atual->ano);
+            printf("Status: Emprestado\n\n");
+            achouEmprestado = 1;
+        }
+        atual = atual->prox;
+    }
+
+    if (!achouEmprestado)
+        printf("Nenhum livro emprestado.\n");
 }
+
 
 void listarEmprestimos(Emprestimo *lista)
 {
@@ -216,7 +338,7 @@ int main()
     do
     {
         printf("+---------------------------------------+\n");
-        printf("|              - Biblioteca -           |\n");
+        printf("|             - Biblioteca -            |\n");
         printf("+---------------------------------------+\n");
         printf("| [1] Cadastrar novo livro              |\n");
         printf("| [2] Listar livros                     |\n");
@@ -226,8 +348,7 @@ int main()
         printf("| [6] Listar empréstimos                |\n");
         printf("| [7] Sair                              |\n");
         printf("+---------------------------------------+\n");
-        printf("Escolha: ");
-        scanf("%d", &option);
+        option = validarOptionMenu();
 
         switch (option)
         {
